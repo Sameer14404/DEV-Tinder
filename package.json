@@ -1,0 +1,25 @@
+{
+  "name": "dev-tinder",
+  "version": "1.0.0",
+  "description": "Mega Fullstack Project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon src/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sameer14404/DEV-Tinder.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Sameer14404/DEV-Tinder/issues"
+  },
+  "homepage": "https://github.com/Sameer14404/DEV-Tinder#readme",
+  "dependencies": {
+    "express": "^5.1.0",
+    "nodemon": "^3.1.10"
+  }
+}
