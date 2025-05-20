@@ -18,7 +18,7 @@ const userSchema = new Schema({
   },
   age: {
     type: Number,
-    required: [true, 'Age is required'],
+
     min: [18, 'Age must be at least 18'],
     max: [75, 'Age cannot exceed 75'],
   },
@@ -56,7 +56,7 @@ const userSchema = new Schema({
   
   gender: {
     type: String,
-    required: [true, 'Gender is required'],
+
     validate: {
       validator: function (value) {
         return ['male', 'female', 'others'].includes(value.toLowerCase());
