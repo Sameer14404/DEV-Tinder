@@ -5,7 +5,12 @@ const User = require("./Models/userModel");
 const bcrypt = require("bcrypt");
 const {signUpValidator}=require("../utils/Validator")
 
+const cookieParser = require("cookie-parser");
+const jwt=require("jsonwebtoken");
+const { auth } = require("../utils/auth");
+
 app.use(express.json());
+app.use(cookieParser())
 
 app.post("/signup",async(req,res)=>{
     const {firstName,lastName,age,email,password,photoUrl,skills}=req.body;
@@ -30,21 +35,42 @@ app.post("/signup",async(req,res)=>{
 
 app.post("/login",async(req,res)=>{
     const {email,password}=req.body;
+
+
 try {
     const user = await User.findOne({email});
     if(!user){
         return res.status(404).send({msg:"User not found"});
     }
-    const  verified= await bcrypt.compare(password,user.password);
-    if(!verified){
-        return res.status(401).send({msg:"Invalid credentials"});
-    }else{
-        res.status(200).send({msg:"Login successful",user});
-    }
+const varifiedPassword= user.validatePassword(password);
+if(varifiedPassword){
+    const token= user.getJWT();
+    res.cookie("token",token)
+    res.status(200).send({msg:"Login successful",user});
+}
+else{
+    res.status(401).send({msg:"Invalid credentials"});
+}
     
 } catch (error) {
     res.status(400).send({msg:"Error in login"});
 }
+})
+
+app.get("/profile",auth,async(req,res)=>{
+
+
+try {
+    if(req.user){
+        res.status(200).send({user:req.user});
+    }
+    else{
+        res.status(401).send({msg:"Unauthorized"});
+    }
+} catch (error) {
+    res.status(400).send({msg:"Error in fetching profile"});
+}
+   
 })
 
 app.get("/users",async(req,res)=>{
