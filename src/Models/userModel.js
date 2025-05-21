@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 
 const userSchema = new Schema({
   firstName: {
@@ -71,6 +73,21 @@ const userSchema = new Schema({
     maxlength: [200, 'About cannot exceed 200 characters'],
   },
 });
+
+userSchema.methods.getJWT= async function(){
+  const user=this;
+  const token=  await jwt.sign({_id:user._id},"devTinder@123",{
+    expiresIn:"7d"
+  });
+  return token;
+
+}
+userSchema.methods.validatePassword= async function(inputPassword){
+  const user=this;
+  const hashedPassword= user.password;
+  const verified= await bcrypt.compare(inputPassword,hashedPassword);
+  return verified;
+}
 
 // ✅ Automatically set photoUrl based on gender
 userSchema.pre('save', function (next) {
