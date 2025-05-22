@@ -5,6 +5,7 @@ const auth=async(req,res,next)=>{
 
 try {
     const token=req.cookies.token;
+    console.log("token--->",token);
     if(!token){
         res.status(401).send({msg:" token Unauthorized"});
     }
@@ -21,7 +22,7 @@ try {
         next();
     }
 } catch (error) {
-    res.status(401).send({msg:"error in authentication"+error});
+    res.status(401).send({msg:"error in authentication  "+error});
 }
 
 }
