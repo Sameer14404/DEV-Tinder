@@ -18,6 +18,14 @@ const signUpValidator = (req)=>{
 
 }
 
+
+const profileUpdateValidator=(req)=>{
+    const ALLOWED_KEYS=["gender","skills","about","firstName","lastName"]
+    const verified=Object.keys(req.body).every((key)=>ALLOWED_KEYS.includes(key))
+    return verified
+}
+
 module.exports={
-    signUpValidator
+    signUpValidator,
+    profileUpdateValidator
 }
