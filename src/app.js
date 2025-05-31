@@ -30,7 +30,7 @@ const PORT=process.env.PORT || 3001;
 connection().then(()=>{
     app.listen(PORT,()=>{
         console.log(`Server is running on port ${PORT}`);
-        console.log( process.env.OPENAI_API_KEY);
+    
     })
     console.log("Database connected successfully");
 }).catch((err)=>{
