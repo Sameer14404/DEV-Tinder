@@ -84,5 +84,47 @@ userRouter.patch("/update",async(req,res)=>{
     }
 })
 
+userRouter.get("/filter/:type/:value",async(req,res)=>{
+    const {type,value}=req.params;
+    console.log(type,value);
+    try {
+        if(!type || !value){
+            return res.status(400).send({msg:"Type and value are required"});
+        }
+        const users= await User.find({[type]:value});
+        if(users.length===0){
+            return res.status(404).send({msg:"No users found"});
+        }
+        res.status(200).send(users);
+    } catch (error) {
+        res.status(400).send({msg:"Error in fetching users"});
+    }
+})
+
+userRouter.get("/search/:query",async(req,res)=>{
+    const {query}=req.params;
+    console.log(query);
+    try {
+        if(!query){
+            return res.status(400).send({msg:"Query is required"});
+        }
+        const users= await User.find({
+            $or: [
+                { firstName: { $regex: query, $options: 'i' } },
+                { lastName: { $regex: query, $options: 'i' } },
+                { email: { $regex: query, $options: 'i' } }
+            ]
+        });
+        if(users.length===0){
+            return res.status(404).send({msg:"No users found"});
+        }
+        res.status(200).send(users);
+    } catch (error) {
+        res.status(400).send({msg:"Error in searching users"});
+    }
+})
+
+
+
 
 module.exports = userRouter;

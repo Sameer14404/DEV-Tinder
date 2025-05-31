@@ -41,6 +41,31 @@ await data.save()
 
 })
 
+ConnectionRequestRouter.post("/request/review/:status/:requestId",async(req,res)=>{
+   try {
+      const {status,requestId}=req.params
+      if(!status||!requestId){
+         return res.status(400).send("Status and requestId are required")
+      }
+      const allowedStatus=["accepted","rejected"];
+      if(!allowedStatus.includes(status)){
+         return res.status(400).send("Invalid status type")
+      }
+      const request=await connectionRequestModel.findOne({_id:requestId,
+         toUserId:req.user._id,
+         status:"intrested"
+      })
+      if(!request){
+         return res.status(404).send("Connection request not found or already processed")
+      }
+      request.status=status;
+      await request.save();
+      res.status(200).send({msg:`Connection request ${status} successfully`})
+   } catch (error) {
+      res.status(500).send("An error occurred while processing the connection request: " + error.message)
+   }
+})
+
 
 
 module.exports=ConnectionRequestRouter

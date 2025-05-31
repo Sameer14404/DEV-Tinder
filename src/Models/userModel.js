@@ -20,7 +20,6 @@ const userSchema = new Schema({
   },
   age: {
     type: Number,
-
     min: [18, 'Age must be at least 18'],
     max: [75, 'Age cannot exceed 75'],
   },
@@ -44,26 +43,22 @@ const userSchema = new Schema({
     default: 'https://www.w3schools.com/howto/img_avatar.png',
     trim: true,
   },
-  skills: {
-    type: [String],
-    
-    validate: {
-      validator: function (value) {
-        return  value.length <= 10;
-      },
-      message: 'Skills must be between 1 and 5 items',
-    },
-  },
-
-  
   gender: {
     type: String,
-
     validate: {
       validator: function (value) {
         return ['male', 'female', 'others'].includes(value.toLowerCase());
       },
       message: 'Gender must be either "male", "female", or "others"',
+    },
+  },
+  skills: {
+    type: [String],
+    validate: {
+      validator: function (value) {
+        return value.length <= 10;
+      },
+      message: 'Skills must be 10 items or less',
     },
   },
   about: {
@@ -72,22 +67,61 @@ const userSchema = new Schema({
     minlength: [10, 'About must be at least 10 characters'],
     maxlength: [200, 'About cannot exceed 200 characters'],
   },
+
+  // ✅ NEW FIELDS FOR FILTERING & SEARCHING
+  location: {
+    type: String,
+    trim: true,
+    maxlength: [100, 'Location cannot exceed 100 characters'],
+  },
+  profession: {
+    type: String,
+    trim: true,
+    maxlength: [50, 'Profession cannot exceed 50 characters'],
+  },
+  interests: {
+    type: [String],
+    validate: {
+      validator: function (value) {
+        return value.length <= 10;
+      },
+      message: 'Interests must be 10 items or less',
+    },
+  },
+  experienceLevel: {
+    type: String,
+    enum: ['beginner', 'intermediate', 'advanced', 'expert'],
+    default: 'beginner',
+  },
+  availability: {
+    type: String,
+    enum: ['full-time', 'part-time', 'freelance', 'unavailable'],
+    default: 'full-time',
+  },
+  languages: {
+    type: [String],
+    default: [],
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
-userSchema.methods.getJWT= async function(){
-  const user=this;
-  const token=  await jwt.sign({_id:user._id},"devTinder@123",{
-    expiresIn:"7d"
+userSchema.methods.getJWT = async function () {
+  const user = this;
+  const token = await jwt.sign({ _id: user._id }, "devTinder@123", {
+    expiresIn: "7d"
   });
   return token;
+};
 
-}
-userSchema.methods.validatePassword= async function(inputPassword){
-  const user=this;
-  const hashedPassword= user.password;
-  const verified= await bcrypt.compare(inputPassword,hashedPassword);
+userSchema.methods.validatePassword = async function (inputPassword) {
+  const user = this;
+  const hashedPassword = user.password;
+  const verified = await bcrypt.compare(inputPassword, hashedPassword);
   return verified;
-}
+};
 
 // ✅ Automatically set photoUrl based on gender
 userSchema.pre('save', function (next) {
