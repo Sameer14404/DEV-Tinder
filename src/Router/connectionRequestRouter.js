@@ -1,6 +1,7 @@
 const express=require("express");
 const connectionRequestModel = require("../Models/connectionRequestModel");
 const userModel = require("../Models/userModel");
+const User = require("../Models/userModel");
 const ConnectionRequestRouter=express.Router();
 
 ConnectionRequestRouter.post("/request/send/:status/:toUserId",async(req,res)=>{
@@ -42,27 +43,98 @@ await data.save()
 })
 
 ConnectionRequestRouter.post("/request/review/:status/:requestId",async(req,res)=>{
+   const {status,requestId}=req.params
+   if(!status||!requestId){
+      res.status(400).send("status and requestId is not correct !!!")
+   }
    try {
-      const {status,requestId}=req.params
-      if(!status||!requestId){
-         return res.status(400).send("Status and requestId are required")
+      const ALLOWED_STATUS=['accepted','rejected'];
+      if(!ALLOWED_STATUS.includes(status)){
+         res.status(400).send("This status is not valid !!")
       }
-      const allowedStatus=["accepted","rejected"];
-      if(!allowedStatus.includes(status)){
-         return res.status(400).send("Invalid status type")
-      }
-      const request=await connectionRequestModel.findOne({_id:requestId,
-         toUserId:req.user._id,
-         status:"intrested"
+
+      const connection= await connectionRequestModel.findOne({
+         status:"intrested" ,//status must be intrested to loggedInuser
+         _id:requestId,
+         toUserId:req.user._id
       })
-      if(!request){
-         return res.status(404).send("Connection request not found or already processed")
+      if(!connection){
+         res.status(400).send("User not found !!")
       }
-      request.status=status;
-      await request.save();
-      res.status(200).send({msg:`Connection request ${status} successfully`})
+      connection.status=status;
+      connection.save()
+      res.status(200).send({msg:`connection request ${status}`,connection})
    } catch (error) {
-      res.status(500).send("An error occurred while processing the connection request: " + error.message)
+      
+   }
+})
+
+ConnectionRequestRouter.get("/pendingRequests",async(req,res)=>{
+   try {
+      const ConnectionRequest= await connectionRequestModel.find({
+         status:"intrested",
+         toUserId:req.user._id
+      }).populate(
+         "fromUserId",
+         ["firstName","lastName","photoUrl"]
+       
+      )
+      res.send(ConnectionRequest)
+   } catch (error) {
+      
+   }
+
+})
+
+ConnectionRequestRouter.get('/accepted/',async(req,res)=>{
+
+   try {
+      const connection= await connectionRequestModel.find({
+         $or:[
+            {toUserId:req.user_id ,status:"accepted"},
+            {
+               fromUserId:req.user_id ,status:"accepted"
+            }
+         ]
+      }).populate("fromUserId",["firstName, lastName,photoUrl"]).populate("toUserId",["firstName, lastName,photoUrl"]);
+   
+      res.status(200).send(connection)
+   } catch (error) {
+      res.status(400).send({msg:error.msg})
+   }
+
+
+  
+   
+})
+
+ConnectionRequestRouter.get("/feed",async(req,res)=>{
+   const page = parseInt(req.query.page) || 1;
+   let limit = parseInt(req.query.limit) || 10;
+   limit=limit>50?50:limit; // Limit to a maximum of 50
+   const skip = (page - 1) * limit;
+   const loggedInuserId=req.user._id;
+   try {
+ const ConnectionRequest=await connectionRequestModel.find({
+   $or:[
+      {fromUserId:loggedInuserId},
+      {toUserId:loggedInuserId}
+   ]
+ }).select("fromUserId toUserId")
+ const hideUsersFromFeed=new Set();
+ ConnectionRequest.forEach((el)=>{
+   hideUsersFromFeed.add(el.fromUserId.toString())
+   hideUsersFromFeed.add(el.toUserId.toString())
+ })
+
+ const users= await User.find({
+ $and: [ {_id:{$nin:Array.from(hideUsersFromFeed)}},
+   {_id:{$ne:loggedInuserId}}
+ ]
+ }).select("firstName lastName photoUrl ").skip(skip).limit(limit);
+ res.send(users)
+   } catch (error) {
+      res.status(400).send({msg:error.msg})
    }
 })
 
