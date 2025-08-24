@@ -1,10 +1,7 @@
 const express= require("express");
 const app= express();
 const connection = require("../config/db");
-const User = require("./Models/userModel");
-const bcrypt = require("bcrypt");
-const {signUpValidator}=require("../utils/Validator")
-
+const cors=require("cors")
 const cookieParser = require("cookie-parser");
 const jwt=require("jsonwebtoken");
 const { auth } = require("../utils/auth");
@@ -13,6 +10,11 @@ const authRouter = require("./Router/authRouter");
 const ConnectionRequestRouter = require("./Router/connectionRequestRouter");
 const { harmainiRouter } = require("./Router/harmainiRouter");
 require('dotenv').config();
+
+app.use(cors({
+    origin: "http://localhost:5173", // Your React app URL
+    credentials: true // Important for cookies
+  }));
 
 
 // ..
@@ -26,7 +28,7 @@ app.use("/harmaini",auth,harmainiRouter)
 
 
 
-const PORT=process.env.PORT || 3001;
+const PORT=process.env.PORT || 5001;
 connection().then(()=>{
     app.listen(PORT,()=>{
         console.log(`Server is running on port ${PORT}`);

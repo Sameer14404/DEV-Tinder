@@ -11,9 +11,8 @@ const processWithOpenAI = async (message, conversationHistory = []) => {
 YOUR CAPABILITIES:
 1. Search developers in MongoDB database using natural language
 2. Answer ANY technical/programming questions with code examples
-3. Debug code, explain errors, suggest solutions
-4. Provide career advice, best practices, architecture guidance
-5. General tech conversation
+3. Provide career advice, best practices, architecture guidance
+4. General tech conversation
 
 DATABASE SCHEMA for User collection:
 {
@@ -42,9 +41,8 @@ RESPONSE FORMAT (Always return valid JSON):
         // "experienceLevel": "expert"
     },
     "response": "Your helpful response",
-    "codeExample": "// Optional code example",
-    "suggestions": ["Follow-up question 1", "Follow-up question 2"],
-    "confidence": 0.95
+  
+  
 }
 
 IMPORTANT: For skills array, just provide the skill names as an array, NOT regex objects.`;

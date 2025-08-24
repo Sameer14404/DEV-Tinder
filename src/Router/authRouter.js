@@ -12,7 +12,9 @@ authRouter.post("/signup",async(req,res)=>{
         const user=new User({
             firstName,
             lastName,
-        
+            age,
+            photoUrl,
+            skills,
             email,
             password:hashedPassword,
           
@@ -38,7 +40,11 @@ try {
 const varifiedPassword= user.validatePassword(password);
 if(varifiedPassword){
     const token=  await user.getJWT();
-    res.cookie("token",token)
+    res.cookie("token", token, {
+        httpOnly: true,
+        secure: false,  // 👈 dev env pe false rakho, production me true
+        sameSite: "lax" // 👈 'none' bhi rakh sakte ho if cross-domain
+      });
     res.status(200).send({msg:"Login successful",user});
 }
 else{

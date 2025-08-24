@@ -62,11 +62,11 @@ userRouter.patch("/update",async(req,res)=>{
     console.log(id)
     
 
-    const Check=profileUpdateValidator(req)
+    // const Check=profileUpdateValidator(req)
     const loggedInUser=req.body;
-    if(!Check){
-        return res.status(400).send({msg:"Update is not Allowed"});
-    }
+    // if(!Check){
+    //     return res.status(400).send({msg:"Update is not Allowed"});
+    // }
     try {
       const user=  await User.findByIdAndUpdate(id,data,{returnDocument:"before"});
        
