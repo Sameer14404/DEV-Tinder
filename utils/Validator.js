@@ -19,6 +19,8 @@ const signUpValidator = (req)=>{
 }
 
 
+// Profile update validator
+
 const profileUpdateValidator=(req)=>{
     const ALLOWED_KEYS=["gender","skills","about","firstName","lastName"]
     const verified=Object.keys(req.body).every((key)=>ALLOWED_KEYS.includes(key))
